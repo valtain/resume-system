@@ -44,10 +44,23 @@ resume-workspace/
 ├── _portfolio/
 │   └── TurnBasedCombat_Portfolio.cs ← 코드 포트폴리오 샘플
 │
+├── _corpus/                         ← JD 분석 아카이브 (향후 사용)
+│
+├── _workspace/                      ← 지원 상태 추적
+│   ├── CURRENT_TARGET.md            ← 현재 활성 지원 건 + Workflow 상태
+│   └── past_jd_analyses/            ← 완료 JD 아카이브
+│
 └── .claude/                         ← AI 행동 규칙 정의 (핵심)
     ├── skills/                      ← 재사용 가능한 프로시저
+    │   ├── resume-review.md
+    │   ├── resume-build.md
+    │   └── doc-consistency.md
     ├── commands/                    ← 커스텀 명령어
+    │   ├── apply-workflow.md
+    │   ├── module-card.md
+    │   └── git-commit.md
     └── rules/                       ← 작문·출력 규칙
+        └── writing-style.md
 ```
 
 ---
@@ -73,19 +86,19 @@ JD 기반 이력서 생성의 5단계 절차를 정의한다.
 
 ---
 
-**`module-card.md`**  
-프로젝트 카드 작성·갱신 시 따라야 할 고정 형식을 정의한다.
+**`resume-review.md`**  
+"이력서를 많이 본 경력직 면접관" 페르소나로 이력서를 리뷰한다. `/apply-workflow` Phase 5에서 조건부 호출.
 
 ```
-## N. 프로젝트명
-**요약**       — 배경 → 판단 → 방향 (3-5문장)
-**기술 스택**  — 선택 이유 포함 (단순 나열 금지)
-**핵심 설계**  — what / why / how 구조로 각 결정 서술
-**트러블슈팅** — 현상 → 원인 특정 과정 → 해결 → 결과 (선택)
-**성과**       — before/after 수치 또는 구조적 변화
-```
+지적 대상:
+- 읽기가 멈추는 문장 (설명 없는 코드명·약어)
+- 수치 없는 강조어 ("획기적으로", "대폭")
+- 과밀한 정보 블록
+- 부정적 어감의 표현
+- 코드 수준 세부사항 (이력서에 부적합)
 
-"무엇을 만들었다"가 아닌 "왜 그 판단을 했는가"를 중심으로 서술하도록 강제.
+심각도 분류: High (읽기 중단) / Medium (어색함) / Low (개선 권장)
+```
 
 ---
 
@@ -105,6 +118,35 @@ JD 기반 이력서 생성의 5단계 절차를 정의한다.
 
 ### commands/ — 커스텀 명령어
 
+**`apply-workflow.md`** (`/apply-workflow <slug>`)  
+JD 공유부터 지원 완료까지의 단일 진입점. 중단 시 재개 가능.
+
+```
+Phase 0. Session Load + 재개 판단  — _workspace/CURRENT_TARGET.md 로드, 중단 기록 확인
+Phase 1. Fit Check                 — JD 분석 + 적합도 표 제시 → Gate 1 (지원 여부)
+Phase 2. 문서 범위 확인            — 필요 문서 목록 확인 → Gate 2
+Phase 3. 카드 선별                 — 모듈 카드 매칭 + _context.md 생성 → Gate 3
+Phase 4. 문서 빌드                 — 단일: resume-build 직접 실행 / 복수: Subagent 병렬
+Phase 5. 품질 검증                 — resume-review / doc-consistency 조건부 실행
+Phase 6. 마무리                    — 상태 업데이트, JD 아카이브 저장
+```
+
+---
+
+**`module-card.md`** (`/module-card`)  
+`_modules/project_modules.md`에 프로젝트 카드를 정석 구조로 추가·수정한다.
+
+```
+## N. 프로젝트명
+**요약**       — 배경 → 판단 → 방향 (3-5문장)
+**기술 스택**  — 선택 이유 포함 (단순 나열 금지)
+**핵심 설계**  — what / why / how 구조로 각 결정 서술
+**트러블슈팅** — 현상 → 원인 특정 과정 → 해결 → 결과 (선택)
+**성과**       — before/after 수치 또는 구조적 변화
+```
+
+---
+
 **`git-commit.md`** (`/git-commit`)  
 `git diff` 결과를 분석하여 변경 파일을 논리적 그룹으로 분류하고 구조화된 커밋 메시지를 제안한다.
 
@@ -117,22 +159,6 @@ JD 기반 이력서 생성의 5단계 절차를 정의한다.
 - docs/chore     — 문서·설정 변경
 
 메시지 형식: [category] 한국어 명사체 요약
-```
-
----
-
-**`resume-review.md`** (`/resume-review`)  
-"이력서를 많이 본 경력직 면접관" 페르소나로 이력서를 리뷰한다.
-
-```
-지적 대상:
-- 읽기가 멈추는 문장 (설명 없는 코드명·약어)
-- 수치 없는 강조어 ("획기적으로", "대폭")
-- 과밀한 정보 블록
-- 부정적 어감의 표현
-- 코드 수준 세부사항 (이력서에 부적합)
-
-심각도 분류: High (읽기 중단) / Medium (어색함) / Low (개선 권장)
 ```
 
 ---
@@ -160,25 +186,37 @@ JD 기반 이력서 생성의 5단계 절차를 정의한다.
 채용공고 입수
     │
     ▼
-/resume-build
-    JD 분석 + 모듈 카드 매칭 (근거 포함)
+/apply-workflow <slug>
+    Phase 0. Session Load + 재개 판단
+             _workspace/CURRENT_TARGET.md 확인 → 중단 건 재개 여부 결정
     │
     ▼
-사용자 확인
-    모듈 선택 승인 + 강조 순위 조정
+    Phase 1. Fit Check
+             JD 분석 + 적합도 표 제시 → Gate 1: 지원 여부 결정
     │
     ▼
-HTML 생성
-    _output/{company}/{company}_{doc_type}.html
-    writing-style.md 규칙 적용
+    Phase 2. 문서 범위 확인
+             필요 문서 목록 (이력서·경력기술서·자소서) → Gate 2: 범위 승인
     │
     ▼
-/resume-review
-    면접관 시점 리뷰 → High/Medium/Low 분류 → 수정
+    Phase 3. 카드 선별
+             모듈 카드 매칭 + 근거 제시 + _context.md 생성 → Gate 3: 카드 승인
     │
     ▼
-/doc-consistency
-    다문서 사실 충돌 검증 → Fact conflict 수정
+    Phase 4. 문서 빌드
+             단일 문서: resume-build 직접 실행
+             복수 문서: Subagent 병렬 실행
+             → _output/{slug}/{slug}_{doc_type}.html
+    │
+    ▼
+    Phase 5. 품질 검증 (조건부)
+             이력서 포함 시 → resume-review (면접관 시점 High/Medium/Low)
+             문서 2종 이상 → doc-consistency (다문서 사실 충돌 검증)
+    │
+    ▼
+    Phase 6. 마무리
+             _workspace/CURRENT_TARGET.md 상태 업데이트
+             _workspace/past_jd_analyses/{slug}_{date}.md 아카이브
     │
     ▼
 /git-commit
