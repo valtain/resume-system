@@ -2,7 +2,7 @@
 
 ## Objective
 
-- `_modules/project_modules.md`에 프로젝트 카드를 정석 구조로 추가/수정.
+- `_corpus/project_modules.md`에 프로젝트 카드를 정석 구조로 추가/수정.
 
 ## Card Structure (Strict)
 
@@ -24,3 +24,4 @@
 
 - 소스에 없는 내용 허구 작성 금지.
 - 외부 도구(HeidiSQL 등) 제외, 핵심 구현 스택 집중.
+- 카드 Write 완료 후 → `/wiki-update` 실행 제안.
