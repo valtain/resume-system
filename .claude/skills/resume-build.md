@@ -1,120 +1,34 @@
-# Skill: Resume Build
+# Skill: Resume Build (JD 맞춤형 빌드)
 
-> 회사별 이력서/경력기술서를 JD 기반으로 작성하는 절차
+## Objective
 
----
+- JD 분석 결과에 따라 모듈 카드를 선별하고 회사별 맞춤 **Markdown 소스** 작성 → 빌드.
 
-## 언제 이 스킬을 쓰는가
+## 문서 형식
 
-- 특정 회사 JD가 제공됐을 때
-- 기존 이력서를 다른 회사용으로 변형할 때
-- 포지션 키워드 기반으로 모듈 카드를 선별해야 할 때
+- **소스**: `.md` (사람이 쓰고 읽고 리뷰하는 대상)
+- **생성물**: `.html` / `.pdf` — `tools/build_doc.py` 가 만든다. **직접 작성 금지.**
+- CSS 는 `_template/assets/` 한 곳에만 있다. 출력물에 CSS 를 복사하지 않는다.
+- 페이지 번호·프로젝트 번호·목차는 렌더러가 계산한다. md 에 쓰지 않는다.
+- md 규약: `.claude/rules/writing-style.md` §3 + `tools/build_doc.py` 상단 docstring.
 
----
+## Procedure
 
-## 작성 절차
+0. **Context Load**: `_output/{company}/_context.md` 존재 시 로드해 JD 요약·카드 선택 근거·세션 노트 파악. 없으면 Step 1 후 생성.
+1. **JD Analysis**: 필수/우대 스택 및 포지션 핵심 맥락(툴/라이브/시스템 등) 추출.
+2. **Selection**: `_corpus/project_modules.md`에서 JD와 매칭되는 카드 선별 및 사유 제시.
+3. **Strategy**: 매칭 우선순위 및 트러블슈팅 성과 중심의 강조 순서 결정.
+4. **Write**: `_template/{doc_type}_basic.md` 를 참고해 `_output/{company}/{company}_{doc_type}.md` 작성.
+   `_context.md` 없으면 이 단계에서 생성.
+5. **Build**: `python tools/build_doc.py _output/{company}/{company}_{doc_type}.md`
+   실패하면 md 규약 위반이므로 md 를 고친다. 생성된 html 을 손대지 않는다.
+6. **Validation**: `.claude/rules/writing-style.md` 준수 여부 최종 확인.
+7. **Archive**: JD 분석 결과를 `_workspace/past_jd_analyses/{company}_{YYYY-MM-DD}.md`에 저장.
 
-### Step 1. JD 분석
+## Rules
 
-JD에서 아래 세 가지를 추출한다:
-
-```
-1. 필수 기술 스택    — 반드시 매칭해야 하는 항목
-2. 우대 기술 스택    — 있으면 강조할 항목
-3. 포지션 핵심 맥락  — 어떤 종류의 개발자를 원하는가
-                      (예: 시스템 개발, 라이브 운영, 툴 개발, 멀티플레이어 등)
-```
-
-포지션 핵심 맥락은 단순 키워드 매칭이 아니라 "이 회사가 어떤 문제를 풀려는가"로 읽는다.
-
-### Step 2. 모듈 카드 선별
-
-`_modules/project_modules.md`를 읽고 JD와 매칭되는 카드를 선별한다.
-
-선별 기준:
-- 필수 기술 스택과 직접 연결되는 카드 → 반드시 포함
-- 우대 기술 스택과 연결되는 카드 → 가능하면 포함
-- 포지션 맥락과 어울리는 카드 → 우선순위 올려서 포함
-
-선별 후 사용자에게 선별 결과를 먼저 보여주고 확인받는다:
-```
-예시:
-- 포함: 모듈 2 (데이터 관리 툴), 모듈 4 (DevOps), 모듈 7 (라이브 운영)
-- 제외: 모듈 5 (대화 시스템) — JD와 연관성 낮음
-- 이유: 이 JD는 툴 개발 + 라이브 운영 경험을 중심으로 요구
-```
-
-### Step 3. 강조 순서 결정
-
-선별된 카드 중에서 강조 순서를 정한다.
-
-원칙:
-- 필수 스택 매칭 카드를 앞에
-- 트러블슈팅 + 수치 있는 카드를 강조 위치에
-- 개인 프로젝트(NexusFrame 등)는 보조 포지션
-
-### Step 4. HTML 작성
-
-`_base/career_basic.html` 또는 `_base/resume_basic.html`을 기반으로 작성한다.
-
-규칙:
-- `_base/` 파일은 직접 수정하지 않음
-- `_output/{company}/` 폴더에 새 파일로 작성
-- 파일명: `{company}_{doc_type}.html`
-  - 예: `_output/krafton/krafton_career.html`
-  - 예: `_output/nsus/nsus_resume.html`
-
-작성 시 `.claude/rules/writing-style.md` 규칙 전체 적용:
-- 문제 → 판단 → 결과 흐름
-- 명사체
-- before/after 수치
-- 트러블슈팅 태그 (`<span class="tag-ts">Troubleshooting</span>`)
-
-### Step 5. 검토 요청
-
-작성 완료 후 사용자에게 아래 항목 검토를 요청한다:
-
-```
-1. 선별된 카드가 맞는가 — 추가하거나 제외할 항목
-2. 강조 순서가 맞는가
-3. 수치/표현 중 사실과 다른 부분
-4. 추가할 맥락이 있는가 (카드에 없는 내용)
-```
-
-카드에 없는 내용은 사용자 확인 없이 추가하지 않는다.
-
----
-
-## 문서 유형별 차이
-
-| 문서 | 목적 | 분량 기준 |
-|------|------|----------|
-| 경력기술서 (`career`) | 프로젝트별 상세 서술 | A4 제한 없음, 프로젝트당 충분히 |
-| 이력서 (`resume`) | 핵심만 압축 | A4 1~2장 |
-
-경력기술서는 모듈 카드 내용을 거의 그대로 활용.
-이력서는 카드에서 성과 + 핵심 설계 1~2줄만 추려서 압축.
-
----
-
-## 출력 파일 구조 예시
-
-```
-_output/
-├── {company_a}/
-│   ├── {company_a}_career.html
-│   └── {company_a}_resume.html
-├── {company_b}/
-│   └── {company_b}_career.html
-└── {company_c}/
-    └── {company_c}_career.html
-```
-
----
-
-## 주의사항
-
-- 모듈 카드에 없는 성과나 기술을 임의로 추가하지 않는다.
-- JD 키워드를 억지로 끼워넣지 않는다 — 실제 경험과 연결되는 것만 사용.
-- 카드 선별 결과는 반드시 사용자 확인 후 작성 시작한다.
-- 회사명은 소문자 영문으로 통일 (예: `krafton`, `nsus`, `ncsoft`).
+- **Naming**: `_output/{company}/{company}_{doc_type}.md` (소문자 영문).
+  빌드 시 같은 이름의 `.html` 이 나온다.
+- **Integrity**: 카드 데이터 외 임의 성과 추가 금지.
+- **Confirmation**: 카드 선별 결과는 작성 전 반드시 사용자 승인 필요.
+- **Media Links**: 선별된 카드에 `## 미디어 링크` 섹션이 있으면 해당 링크를 출력물에 포함. 링크는 카드 내용과 직접 연관된 섹션에만 배치 (내용과 무관한 페이지에 배치 금지).
