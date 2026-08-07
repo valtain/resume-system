@@ -87,8 +87,6 @@ python tools/build_doc.py _output/{slug}/{slug}_career.md --pdf
 
 출력 종류는 파일명이 아니라 프론트매터 `doc_type:`이 결정한다(`career` / `resume` / `portfolio` / `coverletter`). `--pdf`는 playwright가 필요하다. 프로젝트 번호·페이지 번호·목차·타임라인 좌표는 렌더러가 계산하므로 소스에 쓰지 않는다.
 
-현재 `_output/`에는 9개 슬러그가 있고, 이 중 `wata` 4종과 `ewoosoft` resume 만 `.md` 소스로 이관을 마쳤다. 나머지는 렌더러 도입 이전에 만든 `.html`만 추적 중이며, 수정 요청이 생기는 시점에 하나씩 md로 이관한다.
-
 > 지면 구성을 보여줄 산출물 스크린샷 자리. 저장소에 이미지 파일이 없어 링크는 두지 않았다.
 
 ---
