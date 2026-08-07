@@ -190,8 +190,7 @@ built_docs: [resume, career, coverletter]
 
 1. `_workspace/CURRENT_TARGET.md` 업데이트 — 슬러그 + 회사명 추가 또는 상태 변경.
 2. JD 분석 아카이브: `_workspace/past_jd_analyses/{slug}_{YYYY-MM-DD}.md` 저장.
-3. `sync-module` 트리거 조건 충족 여부 확인 → 해당 시 실행 제안.
-4. `_context.md` Workflow State 최종 업데이트:
+3. `_context.md` Workflow State 최종 업데이트:
    ```
    last_completed_phase: 6
    status: done

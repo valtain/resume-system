@@ -60,7 +60,7 @@ AI에게 이력서를 "써 달라"고 지시하는 방식이 아니라, AI가 �
        consistency-auditor   다문서 사실 충돌 감사 → Fact conflict
     │  수정은 메인 스레드가 승인 후 수행
     ▼  Phase 6  마무리
-       CURRENT_TARGET.md 갱신 · JD 아카이브
+       CURRENT_TARGET.md 갱신 · JD 아카이브 · _context.md 상태 기록
 ```
 
 코퍼스 로드는 Phase 3에서 한 번만 일어나고, 이후 에이전트에는 선택된 카드 내용만 전달된다.
